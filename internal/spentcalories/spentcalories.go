@@ -27,8 +27,12 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	*/
 	dataSlice := strings.Split(data, ",")
 
-	if len(dataSlice) != 3 {
-		return 0, "", time.Duration(0), fmt.Errorf("3 parameters are expected in data")
+	if len(dataSlice) == 2 || len(dataSlice) > 3 {
+		return 0, "", time.Duration(0), fmt.Errorf("некорректный формат")
+	}
+
+	if len(dataSlice) == 1 {
+		return 0, "", time.Duration(0), fmt.Errorf("пустая строка")
 	}
 
 	steps, err := strconv.Atoi(dataSlice[0])
@@ -37,7 +41,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	}
 
 	if steps <= 0 {
-		return 0, "", time.Duration(0), fmt.Errorf("incorrect number of steps")
+		return 0, "", time.Duration(0), fmt.Errorf("нуль шагов")
 	}
 
 	timeOfSteps, err := time.ParseDuration(dataSlice[2])
@@ -124,20 +128,31 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 }
 
 func checkParametrs(steps int, weight, height float64, duration time.Duration) error {
-	if steps <= 0 {
-		return fmt.Errorf("incorrect number of steps")
+	if steps == 0 {
+		return fmt.Errorf("ноль шагов")
+	}
+	if steps < 0 {
+		return fmt.Errorf("отрицательные шаги")
 	}
 
-	if weight <= 0 {
-		return fmt.Errorf("incorrect number of weight")
+	if weight < 0 {
+		return fmt.Errorf("отрицательный вес")
 	}
 
-	if height <= 0 {
-		return fmt.Errorf("incorrect number of height")
+	if weight == 0 {
+		return fmt.Errorf("нулевой вес")
 	}
 
-	if duration.Minutes() <= 0 {
-		return fmt.Errorf("incorrect time")
+	if height == 0 {
+		return fmt.Errorf("высота равна 0")
+	}
+
+	if duration.Minutes() == 0 {
+		return fmt.Errorf("нулевая продолжительность")
+	}
+
+	if duration.Minutes() < 0 {
+		return fmt.Errorf("отрицательная продолжительность")
 	}
 
 	return nil

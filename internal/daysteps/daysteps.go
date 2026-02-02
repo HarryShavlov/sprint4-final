@@ -26,10 +26,11 @@ func parsePackage(data string) (int, time.Duration, error) {
 		6. Если всё прошло без ошибок, верните количество шагов, продолжительность и nil (для ошибки).
 	*/
 	dataSlice := strings.Split(data, ",")
-	if len(dataSlice) == 1 || len(dataSlice) >= 3 {
+	if len(dataSlice) >= 3 {
 		return 0, time.Duration(0), fmt.Errorf("некорректный формат")
 	}
-	if len(dataSlice) == 0 {
+
+	if len(dataSlice) == 1 {
 		return 0, time.Duration(0), fmt.Errorf("пустая строка")
 	}
 
