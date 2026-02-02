@@ -26,8 +26,11 @@ func parsePackage(data string) (int, time.Duration, error) {
 		6. Если всё прошло без ошибок, верните количество шагов, продолжительность и nil (для ошибки).
 	*/
 	dataSlice := strings.Split(data, ",")
-	if len(dataSlice) != 2 {
-		return 0, time.Duration(0), fmt.Errorf("2 parameters are expected in data")
+	if len(dataSlice) == 1 || len(dataSlice) >= 3 {
+		return 0, time.Duration(0), fmt.Errorf("некорректный формат")
+	}
+	if len(dataSlice) == 0 {
+		return 0, time.Duration(0), fmt.Errorf("пустая строка")
 	}
 
 	steps, err := strconv.Atoi(dataSlice[0])
@@ -36,7 +39,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 	}
 
 	if steps < 0 {
-		return 0, time.Duration(0), fmt.Errorf("отрицательное количество шагов")
+		return 0, time.Duration(0), fmt.Errorf("отрицательные шаги")
 	}
 
 	if steps == 0 {
@@ -48,7 +51,10 @@ func parsePackage(data string) (int, time.Duration, error) {
 		return 0, time.Duration(0), err
 	}
 	if timeOfSteps < 0 {
-		return 0, time.Duration(0), fmt.Errorf("отрицательное время")
+		return 0, time.Duration(0), fmt.Errorf("отрицательная продолжительность")
+	}
+	if timeOfSteps == 0 {
+		return 0, time.Duration(0), fmt.Errorf("нулевая продолжительность")
 	}
 
 	return steps, timeOfSteps, nil
