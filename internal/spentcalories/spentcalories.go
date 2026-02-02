@@ -1,6 +1,7 @@
 package spentcalories
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -28,7 +29,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	dataSlice := strings.Split(data, ",")
 
 	if len(dataSlice) != 3 {
-		return 0, "", time.Duration(0), fmt.Errorf("некорректный формат")
+		return 0, "", time.Duration(0), errors.New("incorrect format data")
 	}
 
 	steps, err := strconv.Atoi(dataSlice[0])
@@ -37,7 +38,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	}
 
 	if steps <= 0 {
-		return 0, "", time.Duration(0), fmt.Errorf("неверныые шаги")
+		return 0, "", time.Duration(0), errors.New("incorrect value of steps")
 	}
 
 	timeOfSteps, err := time.ParseDuration(dataSlice[2])
@@ -46,7 +47,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	}
 
 	if timeOfSteps <= 0 {
-		return 0, "", time.Duration(0), fmt.Errorf("неверная продолжительность")
+		return 0, "", time.Duration(0), errors.New("incorrect value of duraction")
 	}
 
 	return steps, dataSlice[1], timeOfSteps, nil
@@ -112,37 +113,37 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 			return "", err
 		}
 
-		return fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n", typeOfTrain, timeOfSteps.Hours(), dist, averageSpeed, calories), nil
-
 	case "Ходьба":
 		calories, err = WalkingSpentCalories(steps, weight, height, timeOfSteps)
 		if err != nil {
 			return "", err
 		}
 
-		return fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n", typeOfTrain, timeOfSteps.Hours(), dist, averageSpeed, calories), nil
+	default:
+		return "", errors.New("неизвестный тип тренировки")
 	}
 
-	return "", fmt.Errorf("неизвестный тип тренировки")
+	return fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n", typeOfTrain, timeOfSteps.Hours(), dist, averageSpeed, calories), nil
 
 }
 
 func checkParametrs(steps int, weight, height float64, duration time.Duration) error {
 
 	if duration <= 0 {
-		return fmt.Errorf("неверная продолжительность")
+		return errors.New("incorrect value of duraction")
 	}
 
 	if steps <= 0 {
-		return fmt.Errorf("неверные шаги")
+		return errors.New("incorrect value of steps")
+
 	}
 
 	if weight <= 0 {
-		return fmt.Errorf("неверный вес")
+		return errors.New("incorrect value of weight")
 	}
 
 	if height <= 0 {
-		return fmt.Errorf("неверный рост")
+		return errors.New("incorrect value of height")
 	}
 
 	return nil
