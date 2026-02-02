@@ -2,6 +2,7 @@ package daysteps
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -26,12 +27,9 @@ func parsePackage(data string) (int, time.Duration, error) {
 		6. Если всё прошло без ошибок, верните количество шагов, продолжительность и nil (для ошибки).
 	*/
 	dataSlice := strings.Split(data, ",")
-	if len(dataSlice) >= 3 {
-		return 0, time.Duration(0), fmt.Errorf("некорректный формат")
-	}
 
-	if len(dataSlice) == 1 {
-		return 0, time.Duration(0), fmt.Errorf("пустая строка")
+	if dataSlice[0] == "" || len(dataSlice) == 1 || len(dataSlice) > 2 {
+		return 0, time.Duration(0), fmt.Errorf("некорректный формат")
 	}
 
 	steps, err := strconv.Atoi(dataSlice[0])
@@ -39,23 +37,17 @@ func parsePackage(data string) (int, time.Duration, error) {
 		return 0, time.Duration(0), err
 	}
 
-	if steps < 0 {
-		return 0, time.Duration(0), fmt.Errorf("отрицательные шаги")
-	}
-
-	if steps == 0 {
-		return 0, time.Duration(0), fmt.Errorf("ноль шагов")
+	if steps <= 0 {
+		return 0, time.Duration(0), fmt.Errorf("неверные шаги")
 	}
 
 	timeOfSteps, err := time.ParseDuration(dataSlice[1])
+
 	if err != nil {
 		return 0, time.Duration(0), err
 	}
-	if timeOfSteps < 0 {
-		return 0, time.Duration(0), fmt.Errorf("отрицательная продолжительность")
-	}
-	if timeOfSteps == 0 {
-		return 0, time.Duration(0), fmt.Errorf("нулевая продолжительность")
+	if timeOfSteps <= 0 {
+		return 0, time.Duration(0), fmt.Errorf("неверная продолжительность")
 	}
 
 	return steps, timeOfSteps, nil
@@ -72,10 +64,9 @@ func DayActionInfo(data string, weight, height float64) string {
 		6. Сформировать строку, которую будете возвращать, пример которой был представлен выше.(Количество шагов: 792. \n Дистанция составила 0.51 км. \n Вы сожгли 221.33 ккал. )
 	*/
 	steps, timeOfSteps, err := parsePackage(data)
-
 	// Подумал, что если возвращаемое значение одинаковое, то могу в 1 if уместить
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return ""
 	}
 
@@ -87,6 +78,8 @@ func DayActionInfo(data string, weight, height float64) string {
 	dist := float64(steps) * stepLength / mInKm
 
 	calories, err := spentcalories.WalkingSpentCalories(steps, weight, height, timeOfSteps)
-
+	if err != nil {
+		return fmt.Sprintln(err)
+	}
 	return fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n", steps, dist, calories)
 }

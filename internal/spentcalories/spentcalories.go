@@ -27,12 +27,8 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	*/
 	dataSlice := strings.Split(data, ",")
 
-	if len(dataSlice) == 2 || len(dataSlice) > 3 {
+	if len(dataSlice) != 3 {
 		return 0, "", time.Duration(0), fmt.Errorf("некорректный формат")
-	}
-
-	if len(dataSlice) == 1 {
-		return 0, "", time.Duration(0), fmt.Errorf("пустая строка")
 	}
 
 	steps, err := strconv.Atoi(dataSlice[0])
@@ -41,12 +37,16 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	}
 
 	if steps <= 0 {
-		return 0, "", time.Duration(0), fmt.Errorf("нуль шагов")
+		return 0, "", time.Duration(0), fmt.Errorf("неверныые шаги")
 	}
 
 	timeOfSteps, err := time.ParseDuration(dataSlice[2])
 	if err != nil {
 		return 0, "", time.Duration(0), err
+	}
+
+	if timeOfSteps <= 0 {
+		return 0, "", time.Duration(0), fmt.Errorf("неверная продолжительность")
 	}
 
 	return steps, dataSlice[1], timeOfSteps, nil
@@ -73,7 +73,7 @@ func meanSpeed(steps int, height float64, duration time.Duration) float64 {
 		3. Вычислить и вернуть среднюю скорость. Для этого разделите дистанцию на продолжительность в часах. Чтобы перевести продолжительность в часы, воспользуйтесь функцией из пакета time.
 	*/
 
-	if duration.Minutes() == 0 {
+	if duration <= 0 {
 		return 0
 	}
 	dist := distance(steps, height)
@@ -123,36 +123,26 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		return fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n", typeOfTrain, timeOfSteps.Hours(), dist, averageSpeed, calories), nil
 	}
 
-	return "", fmt.Errorf("Неизвестный тип тренировки")
+	return "", fmt.Errorf("неизвестный тип тренировки")
 
 }
 
 func checkParametrs(steps int, weight, height float64, duration time.Duration) error {
-	if steps == 0 {
-		return fmt.Errorf("ноль шагов")
-	}
-	if steps < 0 {
-		return fmt.Errorf("отрицательные шаги")
+
+	if duration <= 0 {
+		return fmt.Errorf("неверная продолжительность")
 	}
 
-	if weight < 0 {
-		return fmt.Errorf("отрицательный вес")
+	if steps <= 0 {
+		return fmt.Errorf("неверные шаги")
 	}
 
-	if weight == 0 {
-		return fmt.Errorf("нулевой вес")
+	if weight <= 0 {
+		return fmt.Errorf("неверный вес")
 	}
 
-	if height == 0 {
-		return fmt.Errorf("высота равна 0")
-	}
-
-	if duration.Minutes() == 0 {
-		return fmt.Errorf("нулевая продолжительность")
-	}
-
-	if duration.Minutes() < 0 {
-		return fmt.Errorf("отрицательная продолжительность")
+	if height <= 0 {
+		return fmt.Errorf("неверный рост")
 	}
 
 	return nil
