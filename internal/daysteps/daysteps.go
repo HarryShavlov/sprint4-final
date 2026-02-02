@@ -35,13 +35,20 @@ func parsePackage(data string) (int, time.Duration, error) {
 		return 0, time.Duration(0), err
 	}
 
-	if steps <= 0 {
-		return 0, time.Duration(0), fmt.Errorf("incorrect number of steps")
+	if steps < 0 {
+		return 0, time.Duration(0), fmt.Errorf("отрицательное количество шагов")
+	}
+
+	if steps == 0 {
+		return 0, time.Duration(0), fmt.Errorf("ноль шагов")
 	}
 
 	timeOfSteps, err := time.ParseDuration(dataSlice[1])
 	if err != nil {
 		return 0, time.Duration(0), err
+	}
+	if timeOfSteps < 0 {
+		return 0, time.Duration(0), fmt.Errorf("отрицательное время")
 	}
 
 	return steps, timeOfSteps, nil
@@ -60,12 +67,14 @@ func DayActionInfo(data string, weight, height float64) string {
 	steps, timeOfSteps, err := parsePackage(data)
 
 	// Подумал, что если возвращаемое значение одинаковое, то могу в 1 if уместить
-	if err != nil || steps == 0 {
+	if err != nil {
+		fmt.Println(err)
 		return ""
 	}
-	// if steps == 0 {
-	// 	return ""
-	// }
+
+	if steps < 0 {
+		return ""
+	}
 
 	// Дистанцию сразу в км посчитал
 	dist := float64(steps) * stepLength / mInKm
